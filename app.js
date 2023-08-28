@@ -40,10 +40,10 @@ while (true) {
                 cuenta.push(menu[opcion - 1]);
             }
         } else {
-            console.log("Cantidad inválida.");
+            alert("Cantidad inválida.");
         }
     } else {
-        console.log("Opción inválida.");
+        alert("Opción inválida.");
     }
 }
 
