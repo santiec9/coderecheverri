@@ -16,7 +16,7 @@ let cuenta = [];
 alert('Bienvenido a este simulador de facturas de nuestro restaurante =)');
 alert('Ahora si, vamos a comer!!!!')
 while (true) {
-    let selector = prompt(`Menú:\n1. QUESADILLA ($30000)\n2. TACOS ($20000)\n3. BURRITO ($40000)\n4. FLAN ($10000)\n5. MARGARITA ($10000)\n\nSelecciona un producto (1-5) o escribe "PAGAR" para finalizar:`);
+    let selector = prompt(`Menú:\n1. QUESADILLA ($30000)\n2. TACOS ($20000)\n3. BURRITO ($40000)\n4. FLAN ($10000)\n5. MARGARITA ($10000)\n\nSelecciona un producto (1-5) o escribe "PAGAR" para finalizar:`).toUpperCase();
     
     if (selector === "PAGAR") {
         break;
