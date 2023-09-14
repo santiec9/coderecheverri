@@ -1,63 +1,52 @@
-class Menu {
-    constructor (plato, precio){
-        this.plato = plato;
-        this.precio = precio;
-    }
-}
+const cart = {
+    items: [],
+    total: 0,
+};
 
-let menu = [];
-menu.push(new Menu("QUESADILLA", 30000));
-menu.push(new Menu("TACOS", 20000));
-menu.push(new Menu("BURRITO", 40000));
-menu.push(new Menu("FLAN", 10000));
-menu.push(new Menu("MARGARITA", 10000));
+// Agregar un producto al carrito
+function addToCart(productName, price) {
+    const existingItem = cart.items.find(item => item.productName === productName);
 
-let cuenta = [];
-alert('Bienvenido a este simulador de facturas de nuestro restaurante =)');
-alert('Ahora si, vamos a comer!!!!')
-while (true) {
-    let selector = prompt(`Menú:\n1. QUESADILLA ($30000)\n2. TACOS ($20000)\n3. BURRITO ($40000)\n4. FLAN ($10000)\n5. MARGARITA ($10000)\n\nSelecciona un producto (1-5) o escribe "PAGAR" para finalizar:`).toUpperCase();
-    
-    if (selector === "PAGAR") {
-        break;
-    }
-
-    let opcion = parseInt(selector);
-    if (opcion >= 1 && opcion <= 5) {
-        let cantidad = parseInt(prompt(`Ingresa la cantidad de ${menu[opcion - 1].plato} que deseas:`));
-        if (cantidad > 0) {
-            let found = false;
-            for (const item of cuenta) {
-                if (item.plato === menu[opcion - 1].plato) {
-                    item.cantidad += cantidad;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                menu[opcion - 1].cantidad = cantidad;
-                cuenta.push(menu[opcion - 1]);
-            }
-        } else {
-            alert("Cantidad inválida.");
-        }
+    if (existingItem) {
+        existingItem.quantity += 1;
     } else {
-        alert("Opción inválida.");
+        const item = { productName, price, quantity: 1 };
+        cart.items.push(item);
     }
-}
 
-let subtotal = 0;
-for (const item of cuenta) {
-    subtotal += item.precio * item.cantidad;
+    updateCart();
 }
+    // Eliminar un producto del carrito
+    function removeFromCart(index) {
+        cart.items.splice(index, 1);
+        updateCart();
+    }
 
-let iva = subtotal * 0.19;
-let total = subtotal + iva;
+    // Actualizar el contenido del carrito y calcular el total
+    function updateCart() {
+        let cartHTML = '';
+        let cartTotal = 0;
 
-document.write("<h1>Productos seleccionados:</h1><br><hr><hr>");
-for (const item of cuenta) {
-    document.write(`${item.plato} x${item.cantidad} - $${item.precio * item.cantidad}<br><hr>`);
-}
-document.write(`Subtotal: $${subtotal}<br><hr>`);
-document.write(`Total IVA (19%): $${iva}<br><hr>`);
-document.write(`Total a pagar: $${total}<br>`);
+        cart.items.forEach((item, index) => {
+            const itemTotal = item.price * item.quantity;
+            cartTotal += itemTotal;
+            cartHTML += `
+                <div class="cart-item">
+                    <span>${item.productName} - ${item.price} COP x ${item.quantity}</span>
+                    <button onclick="removeFromCart(${index})">Eliminar</button>
+                </div>
+            `;
+        });
+
+        const iva = cartTotal * 0.19;
+        const totalConIva = cartTotal + iva;
+
+        cartHTML += `
+            <p>Subtotal: ${cartTotal} COP</p>
+            <p>IVA (19%): ${iva} COP</p>
+            <p>Total: ${totalConIva} COP</p>
+        `;
+
+        document.getElementById('cart').innerHTML = cartHTML;
+        document.getElementById('total').textContent = totalConIva;
+    }
