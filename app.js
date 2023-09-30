@@ -1,52 +1,115 @@
-const cart = {
-    items: [],
-    total: 0,
-};
+document.addEventListener("DOMContentLoaded", () => {
+    const formulario = document.getElementById("formulario");
+    const listaInvitados = document.getElementById("listaInvitados");
 
-// Agregar un producto al carrito
-function addToCart(productName, price) {
-    const existingItem = cart.items.find(item => item.productName === productName);
+    let invitados = JSON.parse(localStorage.getItem("invitados")) || [];
 
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        const item = { productName, price, quantity: 1 };
-        cart.items.push(item);
-    }
-
-    updateCart();
-}
-    // Eliminar un producto del carrito
-    function removeFromCart(index) {
-        cart.items.splice(index, 1);
-        updateCart();
-    }
-
-    // Actualizar el contenido del carrito y calcular el total
-    function updateCart() {
-        let cartHTML = '';
-        let cartTotal = 0;
-
-        cart.items.forEach((item, index) => {
-            const itemTotal = item.price * item.quantity;
-            cartTotal += itemTotal;
-            cartHTML += `
-                <div class="cart-item">
-                    <span>${item.productName} - ${item.price} COP x ${item.quantity}</span>
-                    <button onclick="removeFromCart(${index})">Eliminar</button>
-                </div>
+    function mostrarInvitados() {
+        listaInvitados.innerHTML = "";
+        invitados.forEach((invitado, index) => {
+            const card = document.createElement("div");
+            card.classList.add("card");
+            card.style.backgroundColor = invitado.confirmado ? "#4CAF50" : ""; 
+            card.innerHTML = `
+                <p>Apellido: ${invitado.apellido}</p>
+                <p>Número de invitados: ${invitado.numInvitados}</p>
+                <p>Alojamiento: ${invitado.alojamiento}</p>
+                <button class="confirmar" data-index="${index}">Confirmar</button>
+                <button class="desconfirmar" data-index="${index}">Desconfirmar</button>
+                <button class="eliminar" data-index="${index}">Eliminar</button>
             `;
+            listaInvitados.appendChild(card);
         });
 
-        const iva = cartTotal * 0.19;
-        const totalConIva = cartTotal + iva;
+        const confirmarBotones = document.querySelectorAll(".confirmar");
+        const desconfirmarBotones = document.querySelectorAll(".desconfirmar");
+        const eliminarBotones = document.querySelectorAll(".eliminar");
 
-        cartHTML += `
-            <p>Subtotal: ${cartTotal} COP</p>
-            <p>IVA (19%): ${iva} COP</p>
-            <p>Total: ${totalConIva} COP</p>
-        `;
+        confirmarBotones.forEach((boton) => {
+            boton.addEventListener("click", confirmarInvitado);
+        });
 
-        document.getElementById('cart').innerHTML = cartHTML;
-        document.getElementById('total').textContent = totalConIva;
+        desconfirmarBotones.forEach((boton) => {
+            boton.addEventListener("click", desconfirmarInvitado);
+        });
+
+        eliminarBotones.forEach((boton) => {
+            boton.addEventListener("click", eliminarInvitado);
+        });
     }
+
+    function agregarInvitado(e) {
+        e.preventDefault();
+
+        const apellido = document.getElementById("apellido").value;
+        const numInvitados = document.getElementById("numInvitados").value;
+        const alojamiento = document.getElementById("alojamiento").value;
+
+        const invitado = {
+            apellido,
+            numInvitados,
+            alojamiento,
+            confirmado: false,
+        };
+
+        invitados.push(invitado);
+
+        localStorage.setItem("invitados", JSON.stringify(invitados));
+
+        formulario.reset();
+
+        mostrarInvitados();
+    }
+
+    function confirmarInvitado(e) {
+        const index = e.target.getAttribute("data-index");
+        invitados[index].confirmado = true;
+
+        const card = e.target.parentElement;
+        card.style.backgroundColor = "#4CAF50"; 
+
+        localStorage.setItem("invitados", JSON.stringify(invitados));
+
+        mostrarInvitados();
+    }
+
+    function desconfirmarInvitado(e) {
+        const index = e.target.getAttribute("data-index");
+        invitados[index].confirmado = false;
+
+        const card = e.target.parentElement;
+        card.style.backgroundColor = ""; 
+
+        localStorage.setItem("invitados", JSON.stringify(invitados));
+
+        mostrarInvitados();
+    }
+
+    function eliminarInvitado(e) {
+        const index = e.target.getAttribute("data-index");
+        const invitado = invitados[index];
+
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: `¿Quieres eliminar al invitado ${invitado.apellido}?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                invitados.splice(index, 1);
+
+                localStorage.setItem("invitados", JSON.stringify(invitados));
+
+                mostrarInvitados();
+            }
+        });
+    }
+
+    mostrarInvitados();
+
+    formulario.addEventListener("submit", agregarInvitado);
+});
